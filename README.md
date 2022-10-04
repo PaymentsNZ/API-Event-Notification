@@ -8,33 +8,24 @@ This is a private git repository of the Payments NZ API specifications. It is us
 
 The APIs covered in the specifications are:
 
-- Set up a consent to access account information
-- Access specific API resources tied to an account access consent
+- xxx
+- xxx
 
 ## Files
 
 The files contained in this project cover:
 
-- Swagger 2.0 YAML formatted API specifications of
-  - NZ Account Information APIs
-- [Changelogs](account-info-nz-changelog.md) of NZ APIs recording human-friendly notes of API changes
-- [Response code defintions and descriptions](account-info-nz-response-codes.md)
-- Other files as required
+- xxx
 
 ## Upstream API Reference
 
-This project has been derived from the [Open Banking UK read/write API specification](https://www.openbanking.org.uk/read-write-apis/)
+This project has been derived from the xxx
 
 ## Contributors
 
 The main contributors are:
 
-- ANZ
-- Westpac
-- BNZ
-- ASB
-- Merco
-- Paymark
+- xxx
 
 ## License
 
