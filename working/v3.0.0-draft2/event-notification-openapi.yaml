@@ -603,6 +603,8 @@ components:
           properties:
             EventSubscriptionId:
               type: string
+              minLength: 1
+              maxLength: 128
           additionalProperties: false
           required:
             - EventSubscriptionId
