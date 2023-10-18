@@ -14,10 +14,16 @@ info:
     url: https://www.apicentre.paymentsnz.co.nz/join/
 servers: 
   - url: https://api.provider.co.nz/open-banking-nz/v3.0
+tags:
+  - name: Event Notification Subscription
+    description: A subscription to one or more events that occur at the API Provider
 paths:
   /event-subscriptions:
     post:
       summary: Subscribe to a resource change callback notification
+      description: The creation of an event-subscription resource represents
+        a Third Party requirement to be informed of API Provider events on a
+        specific resource
       tags:
         - Event Notification Subscription
       operationId: CreateEventSubscription
@@ -89,6 +95,9 @@ paths:
                                             # Refers to the passed URL
             post:
               summary: SET token sent to TPP for account info access consent revocation
+              description: Describes the security event token (SET) sent to the Third Party
+                when an account-access-consent revocation event matching a 
+                event-subscription is triggered at the API Provider.
               parameters:
                 - $ref: "#/components/parameters/x-fapi-interaction-id-Param"
               requestBody:   # Contents of the callback message
@@ -142,6 +151,9 @@ paths:
                                             # Refers to the passed URL
             post:
               summary: SET token sent to TPP for enduring payment consent revocation
+              description: Describes the security event token (SET) sent to the Third Party
+                when an enduring-payment-consent revocation event matching a 
+                event-subscription is triggered at the API Provider.
               parameters:
                 - $ref: "#/components/parameters/x-fapi-interaction-id-Param"
               requestBody:   # Contents of the callback message
@@ -190,6 +202,8 @@ paths:
                 - {}
     get:
       summary: Get subscriptions for resource change callback notifications
+      description: Returns all available event-subscriptions that the Third
+        Party has previously created.
       tags:
         - Event Notification Subscription
       operationId: GetEventSubscriptions
@@ -244,6 +258,9 @@ paths:
   "/event-subscriptions/{EventSubscriptionId}":
     put:
       summary: Update a subscription to an resource change callback notification
+      description: Enables a Third Party to update / replace the details of 
+        an event-subscription resource that was previously created, 
+        identified by EventSubscriptionId.
       tags:
         - Event Notification Subscription
       operationId: ModifyEventSubscription
@@ -312,6 +329,8 @@ paths:
             - accounts
     delete:
       summary: Delete a subscription to an resource change callback notification
+      description: Enables a Third Party to delete a event-subscription resource 
+        that was previously created, identified by EventSubscriptionId.
       tags:
         - Event Notification Subscription
       operationId: DeleteEventSubscription
