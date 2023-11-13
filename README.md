@@ -8,24 +8,24 @@ This is a private git repository of the Payments NZ API specifications. It is us
 
 The APIs covered in the specifications are:
 
-- xxx
-- xxx
+- Event Notification API
 
 ## Files
 
 The files contained in this project cover:
 
-- xxx
+- [JSON Schemas](./schemas/) used for SET tokens
 
 ## Upstream API Reference
 
-This project has been derived from the xxx
+This project has been derived from the [Open Banking UK Event Notification API](https://openbankinguk.github.io/read-write-api-site3/v3.1.10/profiles/event-notification-api-profile.html) Profile v3.1.10.
 
 ## Contributors
 
 The main contributors are:
 
-- xxx
+- Payments NZ API Centre
+- Technical working group members
 
 ## License
 
