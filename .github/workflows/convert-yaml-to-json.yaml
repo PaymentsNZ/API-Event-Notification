@@ -10,11 +10,11 @@ name: convert-yaml-to-json
 # Only the YAML files should be adjusted manually.
 #
 
-# run this on push to main
+# run this on push to master
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   yaml2json:
