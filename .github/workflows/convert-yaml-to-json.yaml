@@ -38,7 +38,7 @@ jobs:
     - name: openapi-lint # run linter over JSON files
       uses: mhiew/redoc-lint-github-action@v4
       with:
-        args: --config working/api-lint-config.yaml working/**/*openapi.json dist/**/*swagger.json
+        args: --config working/api-lint-config.yaml working/**/*openapi.json dist/**/*.json
 
     - name: git diff # check for any changed files and commit
       run: |
