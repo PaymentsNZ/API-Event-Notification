@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   description: OpenAPI specification for the event notification API. This is based on
     the Open Banking UK event notification API, but is simplified for ease of implementation.
-  version: v3.0.0
+  version: v3.0.1
   title: Event Notification API
   termsOfService: https://www.apicentre.paymentsnz.co.nz/contact-us/
   contact:
