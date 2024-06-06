@@ -1,0 +1,682 @@
+openapi: 3.0.3
+info:
+  description: OpenAPI specification for the event notification API. This is based on
+    the Open Banking UK event notification API, but is simplified for ease of implementation.
+  version: v3.0.0
+  title: Event Notification API
+  termsOfService: https://www.apicentre.paymentsnz.co.nz/contact-us/
+  contact:
+    name: Payments NZ API Centre
+    email: apicentre@paymentsnz.co.nz
+    url: https://www.apicentre.paymentsnz.co.nz/contact-us/
+  license:
+    name: Licence
+    url: https://www.apicentre.paymentsnz.co.nz/join/
+servers: 
+  - url: https://api.provider.co.nz/open-banking-nz/v3.0
+tags:
+  - name: Event Notification Subscription
+    description: A subscription to one or more events that occur at the API Provider
+paths:
+  /event-subscriptions:
+    post:
+      summary: Subscribe to a resource change callback notification
+      description: The creation of an event-subscription resource represents
+        a Third Party requirement to be informed of API Provider events on a
+        specific resource
+      tags:
+        - Event Notification Subscription
+      operationId: CreateEventSubscription
+      parameters:
+        - $ref: "#/components/parameters/x-fapi-interaction-id-Param"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Data:
+                  $ref: "#/components/schemas/EventSubscription"
+              additionalProperties: false
+              required:
+                - Data
+      responses:
+        "201":
+          description: Subscription created
+          headers:
+            x-fapi-interaction-id:
+              description: An RFC4122 UID used as a correlation id.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Data:
+                    $ref: "#/components/schemas/EventSubscriptionResponse"
+                  Links:
+                    $ref: "#/components/schemas/Links"
+                  Meta:
+                    $ref: "#/components/schemas/Meta"
+                required:
+                  - Data
+                  - Links
+                  - Meta
+                additionalProperties: false
+        "400":
+          $ref: "#/components/responses/400ErrorResponse"
+        "401":
+          $ref: "#/components/responses/401ErrorResponse"
+        "403":
+          $ref: "#/components/responses/403ErrorResponse"
+        "405":
+          $ref: "#/components/responses/405ErrorResponse"
+        "406":
+          $ref: "#/components/responses/406ErrorResponse"
+        "415":
+          $ref: "#/components/responses/415ErrorResponse"
+        "429":
+          $ref: "#/components/responses/429ErrorResponse"
+        "500":
+          $ref: "#/components/responses/500ErrorResponse"
+        "501":
+          $ref: "#/components/responses/501ErrorResponse"
+        "503":
+          $ref: "#/components/responses/503ErrorResponse"
+      security:
+        - ThirdPartyOAuth2Security:
+            - payments
+            - accounts
+      callbacks:   # Callback definition
+        AccountAccessConsentRevoked:   # Event name
+          "{$request.body#/Data/CallbackUrl}":   # The callback URL,
+                                            # Refers to the passed URL
+            post:
+              summary: SET token sent to TPP for account info access consent revocation
+              description: Describes the security event token (SET) sent to the Third Party
+                when an account-access-consent revocation event matching a 
+                event-subscription is triggered at the API Provider.
+              parameters:
+                - $ref: "#/components/parameters/x-fapi-interaction-id-Param"
+              requestBody:   # Contents of the callback message
+                required: true
+                content:
+                  application/secevent+jwt:
+                    schema:
+                      type: string
+                      example:
+                          eyJhbGciOiJQUzI1NiIsImtpZCI6Ikh0cEEwaGYtZUFwNGFTU2MxZ3JwYTZ5SWxxb1BBUU53MGo1aEI2
+                          cldNWlkiLCJ0eXAiOiJzZWNldmVudCtqd3QifQ.eyJhdWQiOiI3dW14NW5UUjMzODExUXlRZmkiLCJld
+                          mVudHMiOnsidXJuOm56OmNvOnBheW1lbnRzbno6YXBpY2VudHJlOmV2ZW50czphY2NvdW50LWFjY2Vzc
+                          y1jb25zZW50LXJldm9rZWQiOnsic3ViamVjdCI6eyJodHRwOi8vYXBpY2VudHJlLnBheW1lbnRzbnouY
+                          28ubnovcmlkIjoiYWFjLTEyMzQtMDA3IiwiaHR0cDovL2FwaWNlbnRyZS5wYXltZW50c256LmNvLm56L
+                          3JsayI6W3sibGluayI6Imh0dHBzOi8vZXhhbXBsZWJhbmsuY28ubnovYXBpL29wZW4tYmFua2luZy1ue
+                          i92My4wL2FjY291bnQtYWNjZXNzLWNvbnNlbnRzL2FhYy0xMjM0LTAwNyIsInZlcnNpb24iOiJ2My4wI
+                          n1dLCJodHRwOi8vYXBpY2VudHJlLnBheW1lbnRzbnouY28ubnovcnR5IjoiYWNjb3VudC1hY2Nlc3MtY
+                          29uc2VudHMiLCJzdWJqZWN0X3R5cGUiOiJodHRwOi8vYXBpY2VudHJlLnBheW1lbnRzbnouY28ubnovc
+                          mlkX2h0dHA6Ly9hcGljZW50cmUucGF5bWVudHNuei5jby5uei9ydHkifX19LCJpYXQiOjE2NzM0NzI4N
+                          DQsImlzcyI6Imh0dHBzOi8vZXhhbXBsZWJhbmsuY28ubnoiLCJqdGkiOiJhZTE5ZjU5NS1hMGY4LTRkY
+                          mYtOGFkNy01YTU5NGJmOTE2NzQiLCJzdWIiOiJodHRwczovL2V4YW1wbGViYW5rLmNvLm56L2FwaS9vc
+                          GVuLWJhbmtpbmctbnovdjMuMC9hY2NvdW50LWFjY2Vzcy1jb25zZW50cy9hYWMtMTIzNC0wMDciLCJ0b
+                          2UiOjE2NzM0NzI4MzksInR4biI6ImExNjZlNTZkLWMxNzgtNDNjNi05YzBhLTExNGJmNTQ3YzhkZiJ9.
+                          cna7Am_nJXlfMjjL0BF9WjVc0nYOdpyaSzkubhZv5IzSvEyWih3-xBSRnzzmTy1EVFscx_B62_yQFlMQ
+                          yf8Rjphfa5Gb5UK78IlWli6czdMRgv3Ichua-3Hl4SHZmX6zuy3jK-6dl4iIgdwrnVVOnT5YrdCUv1ch
+                          rZc_bd-tTxBJx5VL_c6jlb0xOrDgNK00fOsS6GJ7p1VSqDbCmkAz8WBmNiEZYk44LON7HklPHk6zOWlI
+                          5kEzc2nvAURXTmqAscrhP2d88BzZCAkHQ9Wf36O_EupSU9Me9GQpDPRWh3Q7GR76tw7tLFpBQ8pYAzHE
+                          qlJQLDaTojLQEIgiOTTuadnyMcSZ-lgFLy-9Ze7CxCQST4MtEEM9BOqAccExl8xkiCMPeZQBskhd0fUk
+                          Ymwf4S_MIFh-MfCuKQcV5ASQVYOOkftyhi8lfjsdkU9heMqLSuuw5Jr-wOPD9yuGpPhakg08sIl11Owj
+                          NtgSXf2W1UuPzYgmI_AHb8cS-Nd3TYl4jUXyTVwBdBJQOA6-ZFJlcBEZCwFgZNaClHy2LQrI09aUuuTJ
+                          kx7L24tHHJWyQtikQiP4hxHpW2xpMdO_KdrE2PfcWHdx25DbNa94assk2D5S7JHbMMGqfjV7g1objpPv
+                          MghiiIDKBleruEPYl69OW0ebypyQfqYVFTIkt0U7Q0I
+                      additionalProperties: false
+              responses:   # Expected responses to the callback message
+                "202":
+                  description: TPP returns this code if it accepts the callback
+                  headers:
+                    x-fapi-interaction-id:
+                      description: An RFC4122 UID used as a correlation id.
+                      schema:
+                        type: string
+                        format: uuid
+                "400":
+                  $ref: "#/components/responses/400TPPError"
+                "500":
+                  $ref: "#/components/responses/500TPPError"
+              security:
+                - {}
+        EnduringPaymentConsentRevoked:   # Event name
+          "{$request.body#/Data/CallbackUrl}":   # The callback URL,
+                                            # Refers to the passed URL
+            post:
+              summary: SET token sent to TPP for enduring payment consent revocation
+              description: Describes the security event token (SET) sent to the Third Party
+                when an enduring-payment-consent revocation event matching a 
+                event-subscription is triggered at the API Provider.
+              parameters:
+                - $ref: "#/components/parameters/x-fapi-interaction-id-Param"
+              requestBody:   # Contents of the callback message
+                required: true
+                content:
+                  application/secevent+jwt:
+                    schema:
+                      type: string
+                      example: 
+                        eyJhbGciOiJQUzI1NiIsImtpZCI6Ikh0cEEwaGYtZUFwNGFTU2MxZ3JwYTZ5SWxxb1BBUU53MGo1aEI2
+                        cldNWlkiLCJ0eXAiOiJzZWNldmVudCtqd3QifQ.eyJhdWQiOiI3dW14NW5UUjMzODExUXlRZmkiLCJld
+                        mVudHMiOnsidXJuOm56OmNvOnBheW1lbnRzbno6YXBpY2VudHJlOmV2ZW50czplbmR1cmluZy1wYXltZ
+                        W50LWNvbnNlbnQtcmV2b2tlZCI6eyJzdWJqZWN0Ijp7Imh0dHA6Ly9hcGljZW50cmUucGF5bWVudHNue
+                        i5jby5uei9yaWQiOiJiYmQtMzI0NS0wMDIiLCJodHRwOi8vYXBpY2VudHJlLnBheW1lbnRzbnouY28ub
+                        novcmxrIjpbeyJsaW5rIjoiaHR0cHM6Ly9leGFtcGxlYmFuay5jby5uei9hcGkvb3Blbi1iYW5raW5nL
+                        W56L3YzLjAvZW5kdXJpbmctcGF5bWVudC1jb25zZW50cy9iYmQtMzI0NS0wMDIiLCJ2ZXJzaW9uIjoid
+                        jMuMCJ9XSwiaHR0cDovL2FwaWNlbnRyZS5wYXltZW50c256LmNvLm56L3J0eSI6ImVuZHVyaW5nLXBhe
+                        W1lbnQtY29uc2VudHMiLCJzdWJqZWN0X3R5cGUiOiJodHRwOi8vYXBpY2VudHJlLnBheW1lbnRzbnouY
+                        28ubnovcmlkX2h0dHA6Ly9hcGljZW50cmUucGF5bWVudHNuei5jby5uei9ydHkifX19LCJpYXQiOjE2N
+                        zM0NzIxNzksImlzcyI6Imh0dHBzOi8vZXhhbXBsZWJhbmsuY28ubnoiLCJqdGkiOiJjYzNlYmEwOC02Z
+                        GI4LTQ2MDgtOWY5MS00NDQ0ZDI5NGUzNjUiLCJzdWIiOiJodHRwczovL2V4YW1wbGViYW5rLmNvLm56L
+                        2FwaS9vcGVuLWJhbmtpbmctbnovdjMuMC9lbmR1cmluZy1wYXltZW50LWNvbnNlbnRzL2JiZC0zMjQ1L
+                        TAwMiIsInRvZSI6MTY3MzQ3MjE3NCwidHhuIjoiODgyNTI1MjAtZGQwYS00OWExLTg4M2MtMThhODcyZ
+                        WM3OWVhIn0.tXR17E3p7bu-x8BWqG4fVgGw-9v0GtQAaGZgZ40Rh5BQUpasVdpgTOAOJSmbOGdNQ2gAC
+                        HiAGxX50DdD4hEWGYADAYSHY-Xffy-o6WR5GoDuLYvUfnPSc5pYQBh9F_etSP6Zb7A7Ie88o98t5mpnK
+                        us3ZLQgEK2Z41N0FL2M-FLKFrf6iFO6Lz_hvglUJwaE9Hqqm3kEA1xfXfHDVLks7XxEKrfXUBQrYUw4f
+                        FWyptPNBGoc-KfAkf2AbT5MGVQqZPUOS3D3EezMo9rl7u_tJYmJUvBahNMNCVDIc_ojolY-1-JgOWC3Q
+                        Clc9I_oRLgl-Izend5eW0Q5Nx2xaJDQJvNd60pzoapl4Fl5BV44sHniAyjoMkIr4xENL2OSg0IIvP8C2
+                        qzbRQEQp9H0oZbYei5hB6gIITeA8mwXeE4pyq1W3Go5OeZzppp_GRs83A2wFbuVIJnogO7-MQaHon4HH
+                        QtYdEFt-M1lQp1DrVToQrK2L8payHEJ4FX8MwLKidnZ-vYWDUhdHx0
+                      additionalProperties: false
+              responses:   # Expected responses to the callback message
+                "202":
+                  description: TPP returns this code if it accepts the callback
+                  headers:
+                    x-fapi-interaction-id:
+                      description: An RFC4122 UID used as a correlation id.
+                      required: true
+                      schema:
+                        type: string
+                "400":
+                  $ref: "#/components/responses/400TPPError"
+                "500":
+                  $ref: "#/components/responses/500TPPError"
+              security:
+                - {}
+    get:
+      summary: Get subscriptions for resource change callback notifications
+      description: Returns all available event-subscriptions that the Third
+        Party has previously created.
+      tags:
+        - Event Notification Subscription
+      operationId: GetEventSubscriptions
+      parameters:
+        - $ref: "#/components/parameters/x-fapi-interaction-id-Param"
+      responses:
+        "200":
+          description: Retrieve Event Subscription
+          headers:
+            x-fapi-interaction-id:
+              description: An RFC4122 UID used as a correlation id.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Data:
+                    $ref: "#/components/schemas/EventSubscriptionsResponse"
+                  Links:
+                    $ref: "#/components/schemas/Links"
+                  Meta:
+                    $ref: "#/components/schemas/Meta"
+                required:
+                  - Data
+                  - Links
+                  - Meta
+                additionalProperties: false
+        "400":
+          $ref: "#/components/responses/400ErrorResponse"
+        "401":
+          $ref: "#/components/responses/401ErrorResponse"
+        "403":
+          $ref: "#/components/responses/403ErrorResponse"
+        "405":
+          $ref: "#/components/responses/405ErrorResponse"
+        "406":
+          $ref: "#/components/responses/406ErrorResponse"
+        "429":
+          $ref: "#/components/responses/429ErrorResponse"
+        "500":
+          $ref: "#/components/responses/500ErrorResponse"
+        "501":
+          $ref: "#/components/responses/501ErrorResponse"
+        "503":
+          $ref: "#/components/responses/503ErrorResponse"
+      security:
+        - ThirdPartyOAuth2Security:
+            - payments
+            - accounts
+  "/event-subscriptions/{EventSubscriptionId}":
+    put:
+      summary: Update a subscription to an resource change callback notification
+      description: Enables a Third Party to update / replace the details of 
+        an event-subscription resource that was previously created, 
+        identified by EventSubscriptionId.
+      tags:
+        - Event Notification Subscription
+      operationId: ModifyEventSubscription
+      parameters:
+        - $ref: "#/components/parameters/x-fapi-interaction-id-Param"
+        - $ref: "#/components/parameters/EventSubscriptionIdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                Data:
+                  $ref: "#/components/schemas/EventSubscription"
+              additionalProperties: false
+              required:
+                - Data
+      responses:
+        "200":
+          description: Subscription updated
+          headers:
+            x-fapi-interaction-id:
+              description: An RFC4122 UID used as a correlation id.
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Data:
+                    $ref: "#/components/schemas/EventSubscriptionResponse"
+                  Links:
+                    $ref: "#/components/schemas/Links"
+                  Meta:
+                    $ref: "#/components/schemas/Meta"
+                required:
+                  - Data
+                  - Links
+                  - Meta
+                additionalProperties: false
+        "400":
+          $ref: "#/components/responses/400ErrorResponse"
+        "401":
+          $ref: "#/components/responses/401ErrorResponse"
+        "403":
+          $ref: "#/components/responses/403ErrorResponse"
+        "405":
+          $ref: "#/components/responses/405ErrorResponse"
+        "406":
+          $ref: "#/components/responses/406ErrorResponse"
+        "415":
+          $ref: "#/components/responses/415ErrorResponse"
+        "429":
+          $ref: "#/components/responses/429ErrorResponse"
+        "500":
+          $ref: "#/components/responses/500ErrorResponse"
+        "501":
+          $ref: "#/components/responses/501ErrorResponse"
+        "503":
+          $ref: "#/components/responses/503ErrorResponse"
+      security:
+        - ThirdPartyOAuth2Security:
+            - payments
+            - accounts
+    delete:
+      summary: Delete a subscription to an resource change callback notification
+      description: Enables a Third Party to delete a event-subscription resource 
+        that was previously created, identified by EventSubscriptionId.
+      tags:
+        - Event Notification Subscription
+      operationId: DeleteEventSubscription
+      parameters:
+        - $ref: "#/components/parameters/x-fapi-interaction-id-Param"
+        - $ref: "#/components/parameters/EventSubscriptionIdParam"
+      responses:
+        "204":
+          description: No content - subscription deleted
+          headers:
+            x-fapi-interaction-id:
+              description: An RFC4122 UID used as a correlation id.
+              schema:
+                type: string
+        "400":
+          $ref: "#/components/responses/400ErrorResponse"
+        "401":
+          $ref: "#/components/responses/401ErrorResponse"
+        "403":
+          $ref: "#/components/responses/403ErrorResponse"
+        "405":
+          $ref: "#/components/responses/405ErrorResponse"
+        "406":
+          $ref: "#/components/responses/406ErrorResponse"
+        "429":
+          $ref: "#/components/responses/429ErrorResponse"
+        "500":
+          $ref: "#/components/responses/500ErrorResponse"
+        "501":
+          $ref: "#/components/responses/501ErrorResponse"
+        "503":
+          $ref: "#/components/responses/503ErrorResponse"
+      security:
+        - ThirdPartyOAuth2Security:
+            - payments
+            - accounts
+components:
+  parameters:
+    x-fapi-interaction-id-Param:
+      in: header
+      name: x-fapi-interaction-id
+      required: false
+      description: An RFC4122 UID used as a correlation id.
+      schema:
+        type: string
+        format: uuid
+    EventSubscriptionIdParam:
+      name: EventSubscriptionId
+      in: path
+      description: Unique identification as assigned by the API Provider to uniquely
+        identify the consent.
+      required: true
+      schema:
+        type: string
+  responses:
+    400TPPError:
+      description: Problem with callback request sent by API Provider
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+    500TPPError:
+      description: TPP callback endpoint problem
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+    400ErrorResponse:
+      description: Bad Request
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    401ErrorResponse:
+      description: Unauthorized
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    403ErrorResponse:
+      description: Forbidden
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    405ErrorResponse:
+      description: Method Not Allowed
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    406ErrorResponse:
+      description: Not Acceptable
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    415ErrorResponse:
+      description: Unsupported Media Type
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    429ErrorResponse:
+      description: Too Many Requests
+      headers:
+        Retry-After:
+          description: Number in seconds to wait
+          schema:
+            type: integer
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    500ErrorResponse:
+      description: Internal Server Error
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    501ErrorResponse:
+      description: Not Implemented
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    503ErrorResponse:
+      description: Service Unavailable
+      headers:
+        x-fapi-interaction-id:
+          description: An RFC4122 UID used as a correlation id.
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+  securitySchemes:
+    ThirdPartyOAuth2Security:
+      type: oauth2
+      description: Third Party client credential authorisation flow with the API Provider
+      flows:
+        clientCredentials:
+          tokenUrl: https://authserver.example/token
+          scopes:
+            payments: Generic payment scope
+            accounts: Generic accounts scope
+  schemas:
+    Error:
+      type: object
+      properties:
+        ErrorCode:
+          description: Low level textual error code.
+          type: string
+          enum:
+            - Field.Expected
+            - Field.Invalid
+            - Field.Missing
+            - Field.Unexpected
+            - Header.Invalid
+            - Header.Missing
+            - QueryParam.Invalid
+            - Reauthenticate
+            - Reauthorise
+            - Resource.Consent.CreditorAccount
+            - Resource.Consent.DebtorAccount
+            - Resource.Consent.Exceed.DataPermissions
+            - Resource.Consent.Exceed.Dates
+            - Resource.Consent.Exceed.Frequency
+            - Resource.Consent.Exceed.MaximumAmount
+            - Resource.Consent.Exceed.TotalAmount
+            - Resource.Consent.Exceed.TotalCount
+            - Resource.Consent.Exceed.TransactionDates
+            - Resource.Consent.InvalidStatus
+            - Resource.Consent.Mismatch
+            - Resource.Invalid
+            - UnexpectedError
+            - Unsupported.AccountIdentifier
+            - Unsupported.AccountSecondaryIdentifier
+            - Unsupported.Currency
+            - Unsupported.Scheme
+        Message:
+          description: A free text description of the error that occurred. E.g.,  "A
+            mandatory field isn"t supplied".
+          type: string
+          minLength: 1
+          maxLength: 500
+        Path:
+          description: A recommended but optional reference to the JSON Path of the
+            field  with error, e.g., Data.Consent.InstructedAmount.Currency
+          type: string
+          minLength: 1
+          maxLength: 500
+        Url:
+          description: URL to help remediate the problem, provide more information or
+            to  API Reference.
+          type: string
+      required:
+        - ErrorCode
+        - Message
+      additionalProperties: false
+      minProperties: 1
+    ErrorResponse:
+      description: An array of detail error codes, and messages, and URLs to
+        documentation to  help remediation.
+      type: object
+      properties:
+        Code:
+          description: High level textual error code to help categorise the errors.
+          type: string
+          minLength: 1
+          maxLength: 128
+        Id:
+          description: A unique reference for the error instance, for audit purposes,
+            in  case of unknown/unclassified errors.
+          type: string
+          minLength: 1
+          maxLength: 128
+        Message:
+          description: Brief Error message. E.g., "There is something wrong with the
+            request  parameters provided"
+          type: string
+          minLength: 1
+          maxLength: 500
+        Errors:
+          items:
+            $ref: "#/components/schemas/Error"
+          type: array
+          minItems: 1
+      required:
+        - Code
+        - Message
+        - Errors
+      additionalProperties: false
+    Meta:
+      type: object
+      description: Metadata relevant to the payload
+      properties:
+        TotalPages:
+          type: integer
+          format: int32
+      additionalProperties: false
+    Links:
+      type: object
+      description: Links to assist API navigation
+      properties:
+        Self:
+          type: string
+          format: uri
+        First:
+          type: string
+          format: uri
+        Prev:
+          type: string
+          format: uri
+        Next:
+          type: string
+          format: uri
+        Last:
+          type: string
+          format: uri
+      required:
+        - Self
+    EventSubscriptionResponse:
+      allOf:
+        - type: object
+          properties:
+            EventSubscriptionId:
+              type: string
+              minLength: 1
+              maxLength: 128
+          additionalProperties: false
+          required:
+            - EventSubscriptionId
+        - $ref: "#/components/schemas/EventSubscription"
+    EventSubscription:
+      type: object
+      properties:
+        CallbackUrl:
+          description: Callback URL for a TPP hosted service. Will be used by API Providers, in conjunction with the resource name, to construct a URL to send event notifications to.
+          type: string
+          format: uri
+        Version:
+          type: string
+          description: The version of resources to which the event subscription applies
+        EventTypes:
+          type: array
+          items:
+            description: Array of event types the subscription applies to.
+            type: string
+      required:
+        - CallbackUrl
+        - EventTypes
+        - Version
+      additionalProperties: false
+    EventSubscriptionsResponse:
+      type: object
+      properties:
+        EventSubscription:
+          type: array
+          items:
+            $ref: "#/components/schemas/EventSubscriptionResponse"
+      additionalProperties: false
