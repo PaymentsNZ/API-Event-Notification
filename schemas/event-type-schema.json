@@ -1,0 +1,21 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://apicentre.paymentsnz.co.nz/schemas/event-type-schema.json",
+  "title": "The schema for the Event Type string",
+  "type": "string",
+  "anyOf": [
+    {
+      "enum": ["urn:nz:co:paymentsnz:apicentre:events:account-access-consent-revoked", "urn:nz:co:paymentsnz:apicentre:events:enduring-payment-consent-revoked"],
+      "description": "The mandatory event types defined by API Centre. API Providers must support these event types"
+    },
+    {
+      "enum": ["urn:nz:co:paymentsnz:apicentre:events:xyz"],
+      "description": "The optional event types defined by API Centre. If API Providers support these event types, they should use the same Event Type name"
+    },
+    {
+      "type": "string",
+      "description": "Custom event types defined by the API Provider"
+    }
+  ]
+}
